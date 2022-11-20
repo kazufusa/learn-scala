@@ -1,0 +1,59 @@
+#!/bin/sh
+
+set -Ceux
+
+mkdir -p $1/project
+mkdir -p $1/src/main/scala
+mkdir -p $1/src/test/scala
+
+scalatest=`curl -s https://api.github.com/repos/scalatest/scalatest/releases | jq ".[0].name"`
+
+cd $1
+
+curl -s https://raw.githubusercontent.com/scala-text/scala_text/master/.gitignore > .gitignore
+cat <<EOF >> .gitignore
+
+.bloop/
+.metals/
+metals.sbt
+EOF
+
+cat <<EOF > build.sbt
+ThisBuild / version := "0.1.0-SNAPSHOT"
+
+ThisBuild / scalaVersion := "2.13.10"
+
+lazy val root = (project in file("."))
+  .settings(
+    name := "$1"
+  )
+
+libraryDependencies += "org.scalatest" %% "scalatest" % ${scalatest} % "test"
+EOF
+
+cat <<EOF > project/build.properties
+sbt.version = 1.8.0
+EOF
+
+cat <<EOF > src/main/scala/Main.scala
+object Main {
+  def main(args: Array[String]): Unit = {
+    println("Hello world!")
+  }
+}
+EOF
+
+
+
+cat <<EOF > src/test/scala/MainSpec.scala
+import org.scalatest.flatspec.AnyFlatSpec
+
+class MainSpec extends AnyFlatSpec {
+  "Add" should "return added value" in {
+    assert(1 + 2 === 3)
+  }
+}
+EOF
+
+sbt run
+sbt test
