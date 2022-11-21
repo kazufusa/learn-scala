@@ -2,13 +2,14 @@
 
 set -Ceux
 
-mkdir -p $1/project
-mkdir -p $1/src/main/scala
-mkdir -p $1/src/test/scala
-
+d=$(date +%Y%m%d)
+wd=./${d}_$1
 scalatest=`curl -s https://api.github.com/repos/scalatest/scalatest/releases | jq ".[0].name"`
 
-cd $1
+mkdir -p ${wd}/project
+mkdir -p ${wd}/src/main/scala
+mkdir -p ${wd}/src/test/scala
+cd ${wd}
 
 curl -s https://raw.githubusercontent.com/scala-text/scala_text/master/.gitignore > .gitignore
 cat <<EOF >> .gitignore
@@ -42,8 +43,6 @@ object Main {
   }
 }
 EOF
-
-
 
 cat <<EOF > src/test/scala/MainSpec.scala
 import org.scalatest.flatspec.AnyFlatSpec
