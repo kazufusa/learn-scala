@@ -7,7 +7,7 @@ class RationalSpec extends AnyFlatSpec {
 
   "add" should "return added Rational value" in {
     val actual = Rational(1, 2) add Rational(1, 4)
-    val expected = Rational(6, 8)
+    val expected = Rational(36, 48)
     assert(actual === expected)
   }
 }
