@@ -36,6 +36,13 @@ cat <<EOF > project/build.properties
 sbt.version = 1.8.0
 EOF
 
+cat <<EOF > .scalafmt.conf
+project.git = true
+align = more
+maxColumn = 120
+EOF
+
+
 cat <<EOF > src/main/scala/Main.scala
 object Main {
   def main(args: Array[String]): Unit = {

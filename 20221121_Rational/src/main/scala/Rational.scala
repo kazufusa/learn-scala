@@ -3,9 +3,7 @@ class Rational(val n: Int, val d: Int) {
 
   override def toString: String = s"$n/$d"
 
-  def add(that: Rational) = {
-    Rational(n = that.d + that.n * d, d * that.d)
-  }
+  def add(that: Rational) = Rational(n = that.d + that.n * d, d * that.d)
 
   override def equals(other: Any) = other match {
     case that: Rational =>
