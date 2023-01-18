@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -Ceux
+set -eux
 
 d=$(date +%Y%m%d)
 wd=./${d}_$1
