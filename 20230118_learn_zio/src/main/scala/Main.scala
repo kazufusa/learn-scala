@@ -3,6 +3,7 @@ import zio._
 import java.io.IOException
 
 object MainApp extends ZIOAppDefault {
+  // https://zio.dev/guides/quickstarts/hello-world
   // val myApp: ZIO[Any, IOException, Unit] =
   //   for {
   //     rnd <- Random.nextIntBounded(100)
@@ -18,12 +19,12 @@ object MainApp extends ZIOAppDefault {
   //   < <- Console.print(s"Hello, $name!")
   // } yield ()
 
-  // def run = Console.print("Please enter your name: ")
-  //   .flatMap { _ => 
-  //     Console.readLine
-  //       .flatMap { name =>
-  //         Console.print(s"Hello $name!")
-  //       }
-  //   }
+  def run = Console.print("Please enter your name: ")
+    .flatMap { _ => 
+      Console.readLine
+        .flatMap { name =>
+          Console.print(s"Hello $name!")
+        }
+    }
 
 }
