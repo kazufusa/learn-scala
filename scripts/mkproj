@@ -5,6 +5,7 @@ set -eux
 d=$(date +%Y%m%d)
 wd=./${d}_$1
 scalatest=`curl -s https://api.github.com/repos/scalatest/scalatest/releases | jq ".[0].name"`
+scalafmt=`curl -s https://api.github.com/repos/scalameta/sbt-scalafmt/releases | jq ".[0].name" | grep -o -E "([0-9]+\.){2}([0-9]+)"`
 
 mkdir -p ${wd}/project
 mkdir -p ${wd}/src/main/scala
@@ -36,7 +37,12 @@ cat <<EOF > project/build.properties
 sbt.version = 1.8.0
 EOF
 
+cat <<EOF > project/plugins.sbt
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "${scalafmt}")
+EOF
+
 cat <<EOF > .scalafmt.conf
+version = "${scalafmt}"
 project.git = true
 align = more
 maxColumn = 120
