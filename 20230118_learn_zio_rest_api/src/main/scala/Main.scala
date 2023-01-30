@@ -1,4 +1,3 @@
-import io.netty.handler.codec.http.DefaultHttpHeaders
 import zhttp.http._
 import zhttp.service.Server
 import zio._
@@ -41,8 +40,9 @@ object Main extends ZIOAppDefault {
               Http.response(
                 Response(
                   Status.Ok,
-                  Headers.make(
-                    new DefaultHttpHeaders().add("Content-type", "text/plain")
+                  Headers(
+                    ("Content-Type", "application/octet-stream"),
+                    ("Content-Disposition", s"attachmenet: filename=${file.getName}")
                   ),
                   HttpData.fromFile(file)
                 )
@@ -50,7 +50,19 @@ object Main extends ZIOAppDefault {
             else Http.response(Response.status(Status.NotFound))
         } yield r
       case Method.GET -> !! / "download" / "stream" =>
-        Http.fromStream(ZStream.fromFile(new File("file.txt")))
+        val file = new File("bigfile.txt")
+        Http
+          .fromStream(
+            ZStream
+              .fromFile(file)
+              .schedule(Schedule.spaced(50.millis))
+          )
+          .setHeaders(
+            Headers(
+              ("Content-Type", "application/octet-stream"),
+              ("Content-Disposition", s"attachmenet: filename=${file.getName}")
+            )
+          )
     }
 
   val counterApp: Http[Ref[Int], Nothing, Request, Response] =
@@ -62,15 +74,46 @@ object Main extends ZIOAppDefault {
       }
     }
 
+  val userApp: Http[Ref[mutable.Map[String, User]], Throwable, Request, Response] =
+    Http.collectZIO[Request] {
+      case req @ (Method.POST -> !! / "register") =>
+        for {
+          u <- req.bodyAsString.map(_.fromJson[User])
+          r <- u match {
+            case Left(e) =>
+              ZIO.debug(s"Failed to parse the input $e").as(Response.text(e))
+            case Right(u) =>
+              for {
+                id    <- Random.nextUUID
+                users <- ZIO.service[Ref[mutable.Map[String, User]]]
+                _     <- users.update(_ addOne (id.toString, u))
+                _     <- users.get.debug(s"Registered user: $u")
+              } yield Response.text(s"Registered ${u.name} with id $id")
+
+          }
+        } yield r
+
+      case Method.GET -> !! / "user" / id =>
+        for {
+          users <- ZIO.service[Ref[mutable.Map[String, User]]]
+          _     <- users.get.debug(s"users: $users")
+          u <- users.get.map {
+            _.get(id) match {
+              case Some(value) => Response.json(value.toJson)
+              case None        => Response.status(Status.NotFound)
+            }
+          }
+        } yield u
+    }
+
   def run =
     Server
       .start(
         port = 8090,
-        http = greetingApp ++ downloadApp ++ counterApp
+        http = greetingApp ++ downloadApp ++ counterApp ++ userApp
       )
       .provide(
-        ZLayer.fromZIO(Ref.make(0))
-        // // An layer that contains a `Ref[mutable.Map[String, User]]` for the `userApp`
-        // ZLayer.fromZIO(Ref.make(mutable.Map.empty[String, User]))
+        ZLayer.fromZIO(Ref.make(0)),
+        ZLayer.fromZIO(Ref.make(mutable.Map.empty[String, User]))
       )
 }
