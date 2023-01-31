@@ -74,20 +74,24 @@ object Main extends ZIOAppDefault {
       }
     }
 
-  val userApp: Http[UserRepo, Throwable, Request, Response] =
+  val inMemoryUserApp: Http[UserRepo, Throwable, Request, Response] =
     Http.collectZIO[Request] {
-      case req @ (Method.POST -> !! / "register") =>
+      case req @ (Method.POST -> !! / "users") =>
         for {
           u <- req.bodyAsString.map(_.fromJson[User])
           r <- u match {
             case Left(e) =>
-              ZIO.debug(s"Failed to parse the input $e").as(Response.text(e))
+              ZIO
+                .debug(s"Failed to parse the input $e")
+                .as(
+                  Response.text(e).setStatus(Status.BadRequest)
+                )
             case Right(u) =>
-              UserRepo.register(u).map(id => Response.text(s"Registered ${u.name} with id $id"))
+              UserRepo.register(u).map(id => Response.text(id))
           }
         } yield r
 
-      case Method.GET -> !! / "user" / id =>
+      case Method.GET -> !! / "users" / id =>
         UserRepo
           .lookup(id)
           .map {
@@ -131,7 +135,7 @@ object Main extends ZIOAppDefault {
     Server
       .start(
         port = 8090,
-        http = greetingApp ++ downloadApp ++ counterApp ++ userApp
+        http = greetingApp ++ downloadApp ++ counterApp ++ inMemoryUserApp
       )
       .provide(
         ZLayer.fromZIO(Ref.make(0)),
