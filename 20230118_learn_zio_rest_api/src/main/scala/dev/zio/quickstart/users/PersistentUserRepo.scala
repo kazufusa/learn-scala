@@ -25,7 +25,7 @@ case class PersistentUserRepo(ds: DataSource) extends UserRepo {
         }
       }
     } yield id.toString
-  }.provideService(ds)
+  }.provide(ZLayer.succeed(ds))
 
   override def lookup(id: String): Task[Option[User]] =
     ctx
@@ -33,8 +33,7 @@ case class PersistentUserRepo(ds: DataSource) extends UserRepo {
         quote {
           query[UserTable].filter(p => p.uuid == lift(UUID.fromString(id))).map(u => User(u.name, u.age))
         }
-      }
-      .provideService(ds)
+      }.provide(ZLayer.succeed(ds))
       .map(_.headOption)
 
   override def users(): Task[List[User]] =
@@ -43,8 +42,7 @@ case class PersistentUserRepo(ds: DataSource) extends UserRepo {
         quote {
           query[UserTable].map(u => User(u.name, u.age))
         }
-      }
-      .provideService(ds)
+      }.provide(ZLayer.succeed(ds))
 }
 
 object PersistentUserRepo {
