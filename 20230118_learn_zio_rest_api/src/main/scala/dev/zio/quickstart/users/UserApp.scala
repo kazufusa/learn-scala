@@ -4,6 +4,12 @@ import zhttp.http._
 import zio._
 import zio.json._
 
+/**
+ * An http app that:
+ *   - Accepts a `Request` and returns a `Response`
+ *   - May fail with type `Throwable`
+ *   - Uses a `UserRepo` as the environment
+ */
 object UserApp {
   def apply(): Http[UserRepo, Throwable, Request, Response] =
     Http.collectZIO[Request] {

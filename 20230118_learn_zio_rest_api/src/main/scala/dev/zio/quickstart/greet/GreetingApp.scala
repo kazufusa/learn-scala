@@ -1,5 +1,11 @@
 import zhttp.http._
 
+/**
+ * An http app that:
+ *   - Accepts a `Request` and returns a `Response`
+ *   - Does not fail
+ *   - Does not use the environment
+ */
 object GreetingApp {
   def apply(): Http[Any, Nothing, Request, Response] = 
     Http.collect[Request] {
