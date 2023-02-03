@@ -9,7 +9,6 @@ import dev.zio.quickstart.download.DownloadApp
 import java.io.File
 import scala.collection.mutable
 import dev.zio.quickstart.users.UserApp
-import dev.zio.quickstart.users.PersistentUserRepo
 import dev.zio.quickstart.users.InmemoryUserRepo
 
 case class User(name: String, age: Int)
@@ -28,6 +27,7 @@ object Main extends ZIOAppDefault {
       )
       .provide(
         ZLayer.fromZIO(Ref.make(0)),
-        PersistentUserRepo.layer
+        // To use the persistence layer, provide the `PersistentUserRepo.layer` layer instead
+        InmemoryUserRepo.layer
       )
 }
