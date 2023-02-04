@@ -9,9 +9,10 @@ lazy val root = (project in file("."))
 
 libraryDependencies ++= Seq(
   "org.scalatest"         %% "scalatest"        % "3.2.15" % "test",
-  "dev.zio"               %% "zio"              % "2.0.0-RC6",
-  "com.github.ghostdogpr" %% "caliban"          % "2.0.2",
-  "com.github.ghostdogpr" %% "caliban-zio-http" % "2.0.2" // routes for zio-http
+  "dev.zio"               %% "zio"              % "2.0.0-RC2",
+  "com.github.ghostdogpr" %% "caliban"          % "2.0.0-RC2",
+  "com.github.ghostdogpr" %% "caliban-zio-http" % "2.0.0-RC2",
+  "io.d11"                %% "zhttp"            % "2.0.0-RC3",
 )
 
 // vim: set ft=scala:
