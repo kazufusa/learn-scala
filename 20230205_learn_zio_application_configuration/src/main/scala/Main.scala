@@ -6,10 +6,11 @@ import zio.stream.ZStream
 import dev.zio.quickstart.counter.CounterApp
 import dev.zio.quickstart.download.DownloadApp
 
+import java.io.IOException
 import java.io.File
 import scala.collection.mutable
-import dev.zio.quickstart.users.UserApp
-import dev.zio.quickstart.users.InmemoryUserRepo
+import dev.zio.quickstart.users.{UserApp, InmemoryUserRepo}
+import dev.zio.quickstart.config.HttpServerConfig
 
 case class User(name: String, age: Int)
 
@@ -20,14 +21,24 @@ object User {
 
 object Main extends ZIOAppDefault {
   def run =
-    Server
-      .start(
-        port = 8090,
-        http = GreetingApp() ++ DownloadApp() ++ CounterApp() ++ UserApp()
-      )
+    ZIO
+      .service[HttpServerConfig]
+      .flatMap { config =>
+        for {
+          _ <- Console.printLine(
+            "Application started with following configuration:\n" +
+              s"\thost: ${config.host}\n" +
+              s"\tport: ${config.port}"
+          )
+          server <- Server.start(
+            port = config.port,
+            http = GreetingApp() ++ DownloadApp() ++ CounterApp() ++ UserApp()
+          )
+        } yield server
+      }
       .provide(
         ZLayer.fromZIO(Ref.make(0)),
-        // To use the persistence layer, provide the `PersistentUserRepo.layer` layer instead
-        InmemoryUserRepo.layer
+        InmemoryUserRepo.layer,
+        ZLayer.succeed(HttpServerConfig("localhost", 8080))
       )
 }
