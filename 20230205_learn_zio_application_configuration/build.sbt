@@ -8,12 +8,16 @@ lazy val root = (project in file("."))
   )
 
 libraryDependencies ++= Seq(
-  "org.scalatest"  %% "scalatest"      % "3.2.15" % "test",
-  "dev.zio"        %% "zio"            % "2.0.0-RC6",
-  "dev.zio"        %% "zio-json"       % "0.3.0-RC8",
-  "io.d11"         %% "zhttp"          % "2.0.0-RC9",
-  "io.d11"         %% "zhttp-test"     % "2.0.0-RC8",
-  "io.getquill"    %% "quill-zio"      % "3.17.0-RC2",
-  "io.getquill"    %% "quill-jdbc-zio" % "3.17.0-RC2",
-  "com.h2database" %  "h2"             % "2.1.212"
+  "org.scalatest" %% "scalatest"           % "3.2.15" % "test",
+  "dev.zio"       %% "zio"                 % "2.0.0-RC5",
+  "dev.zio"       %% "zio-json"            % "0.3.0-RC7",
+  "io.d11"        %% "zhttp"               % "2.0.0-RC7",
+  "io.getquill"   %% "quill-zio"           % "3.17.0-RC3",
+  "io.getquill"   %% "quill-jdbc-zio"      % "3.17.0-RC3",
+  "com.h2database" % "h2"                  % "2.1.212",
+  "dev.zio"       %% "zio-config"          % "3.0.0-RC8",
+  "dev.zio"       %% "zio-config-typesafe" % "3.0.0-RC8",
+  "dev.zio"       %% "zio-config-magnolia" % "3.0.0-RC8"
 )
+
+// vim: set ft=scala:

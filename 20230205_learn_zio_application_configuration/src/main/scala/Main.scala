@@ -39,6 +39,6 @@ object Main extends ZIOAppDefault {
       .provide(
         ZLayer.fromZIO(Ref.make(0)),
         InmemoryUserRepo.layer,
-        ZLayer.succeed(HttpServerConfig("localhost", 8080))
+        HttpServerConfig.layer
       )
 }
