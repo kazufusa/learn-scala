@@ -50,10 +50,11 @@ object UserApp {
                 .lookup(id)
                 .some
                 .foldZIO(
-                  _ =>
-                    ZIO
-                      .log(s"Requested user with $id not found")
-                      .as(Response.status(Status.NotFound)),
+                  {
+                    case Some(error) =>
+                      ZIO.logError(s"Failed to lookup user $error").as(Response.status(Status.InternalServerError))
+                    case None => ZIO.log(s"Requested user with $id not found").as(Response.status(Status.NotFound))
+                  },
                   user =>
                     ZIO
                       .log(s"Retrieved the user")
