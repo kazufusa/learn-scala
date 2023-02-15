@@ -21,7 +21,7 @@ object User {
 }
 
 object Main extends ZIOAppDefault {
-  override val bootstrap = SLF4J.slf4j(LogLevel.All, LogFormat.colored)
+  override val bootstrap = SLF4J.slf4j(LogLevel.All, LogFormat.default)
 
   def run =
     Server
