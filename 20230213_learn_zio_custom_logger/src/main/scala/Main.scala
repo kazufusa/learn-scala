@@ -10,6 +10,8 @@ import java.io.File
 import scala.collection.mutable
 import dev.zio.quickstart.users.UserApp
 import dev.zio.quickstart.users.InmemoryUserRepo
+import zio.logging.backend.SLF4J
+import zio.logging.LogFormat
 
 case class User(name: String, age: Int)
 
@@ -19,6 +21,8 @@ object User {
 }
 
 object Main extends ZIOAppDefault {
+  override val bootstrap = SLF4J.slf4j(LogLevel.All, LogFormat.colored)
+
   def run =
     Server
       .start(

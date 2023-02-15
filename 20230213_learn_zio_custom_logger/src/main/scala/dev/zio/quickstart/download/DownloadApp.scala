@@ -7,11 +7,11 @@ import zio._
 import java.io.File
 
 /**
- * An http app that:
- *   - Accepts a `Request` and returns a `Response`
- *   - Does not fail
- *   - Does not use the environment
- */
+  * An http app that:
+  *   - Accepts a `Request` and returns a `Response`
+  *   - Does not fail
+  *   - Does not use the environment
+  */
 object DownloadApp {
   def apply(): Http[Any, Throwable, Request, Response] =
     Http.collectHttp[Request] {

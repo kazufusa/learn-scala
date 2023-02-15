@@ -4,11 +4,11 @@ import zhttp.http._
 import zio.{Ref, ZIO}
 
 /**
- * An http app that:
- *   - Accept `Request` and returns `Response`
- *   - Does not fail
- *   - Requires the `Ref[Int]` as the environment
- */
+  * An http app that:
+  *   - Accept `Request` and returns `Response`
+  *   - Does not fail
+  *   - Requires the `Ref[Int]` as the environment
+  */
 object CounterApp {
   def apply(): Http[Ref[Int], Nothing, Request, Response] =
     Http.fromZIO(ZIO.service[Ref[Int]]).flatMap { ref =>
