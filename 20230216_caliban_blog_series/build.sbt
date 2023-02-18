@@ -7,4 +7,8 @@ lazy val root = (project in file("."))
     name := "caliban_blog_series"
   )
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % "test"
+libraryDependencies ++= Seq(
+  "org.scalatest"         %% "scalatest"      % "3.2.15" % "test",
+  "com.github.ghostdogpr" %% "caliban"        % "0.4.2",
+  "com.github.ghostdogpr" %% "caliban-http4s" % "0.4.2"
+)
