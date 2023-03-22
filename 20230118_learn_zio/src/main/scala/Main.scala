@@ -110,6 +110,9 @@ class App {
       case Left(v) => ZIO.succeed(v)
       case _       => ZIO.fail(new Exception("timeout"))
     }
+
+  def destructuringAssignment(values: Set[(Int, Int, Int)]): Set[Int] =
+    values.collect { case (a, b, c) => a + b + c }
 }
 
 object MainApp extends ZIOAppDefault {
