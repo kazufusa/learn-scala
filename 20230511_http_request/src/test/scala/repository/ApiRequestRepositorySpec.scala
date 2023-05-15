@@ -12,21 +12,26 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiRequestRepositorySpec extends AnyFlatSpec with Matchers with ScalaFutures {
+  override def spanScaleFactor: Double = 100
 
-  "" should "" in {
+  "resolveBy" should "return value" in {
     val stubBackend = SttpBackendStub.asynchronousFuture.whenAnyRequest
       .thenRespond("{\"my_name\": \"abc\"}")
+
     val repository = new ApiRequestRepository {
       override protected[repository] lazy val backend = stubBackend
     }
-    val actual: Future[String] = TestUtil.futureFromZIO(repository.resolveBy())
-    actual.futureValue shouldBe "abc"
+
+    val actual = TestUtil.futureFromZIO(
+      repository.resolveBy().zipPar(repository.resolveBy())
+    )
+    actual.futureValue shouldBe ("abc", "abc")
   }
 }
 
-
 object TestUtil {
-  def futureFromZIO[R](task: Task[R]): Future[R] = Unsafe.unsafe { implicit unsafe =>
+  def futureFromZIO[R](task: Task[R]): Future[R] =
+    Unsafe.unsafe { implicit unsafe =>
       Runtime.default.unsafe.runToFuture(task)
     }
 }
