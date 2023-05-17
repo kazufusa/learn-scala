@@ -9,17 +9,38 @@ trait Repo1 {
 }
 
 class App {
-  def conditionalChain(id: Int, repo1: Repo1, repo2: Repo1, condRepo: Repo1): Task[(Int, Option[Int])] =
+  def foreach(ids: Set[Int], repo1: Repo1): Task[Set[Int]] =
+    ZIO.foreach(ids)(id => repo1.findByIds(Set(id))).map(_.flatten)
+
+  def conditionalChain(
+      id: Int,
+      repo1: Repo1,
+      repo2: Repo1,
+      condRepo: Repo1
+  ): Task[(Int, Option[Int])] =
     for {
       repo1IdAndCond <- repo1.findById(id).zipPar(condRepo.findById(id))
-      repo2Id <- ZIO.when(repo1IdAndCond._2 > 10)(repo2.findById(repo1IdAndCond._1))
+      repo2Id <- ZIO.when(repo1IdAndCond._2 > 10)(
+        repo2.findById(repo1IdAndCond._1)
+      )
       result = (repo1IdAndCond._1, repo2Id)
     } yield result
 
-  def findByIdAndMakeOpton(id: Int, repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
-    repo1.findById(id).map(Some(_)).flatMap(ZIO.foreach(_)(id => repo2.findById(id)))
+  def findByIdAndMakeOpton(
+      id: Int,
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
+    repo1
+      .findById(id)
+      .map(Some(_))
+      .flatMap(ZIO.foreach(_)(id => repo2.findById(id)))
 
-  def findByIdAndMakeOptonFor(id: Int, repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
+  def findByIdAndMakeOptonFor(
+      id: Int,
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
     for {
       mayBeId <- repo1.findById(id).asSome
       // mayBeId <- repo1.findById(id).map(Some(_))
@@ -38,22 +59,38 @@ class App {
       id2 <- repo2.findById(id1)
     } yield id2
 
-  def findByIdOpt(mayBeId: Option[Int], repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
+  def findByIdOpt(
+      mayBeId: Option[Int],
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
     repo1.findByIdOpt(mayBeId).flatMap(v => repo2.findByIdOpt(v))
 
-  def findByIdOptFor(mayBeId: Option[Int], repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
+  def findByIdOptFor(
+      mayBeId: Option[Int],
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
     for {
       id1 <- repo1.findByIdOpt(mayBeId)
       id2 <- repo2.findByIdOpt(id1)
     } yield id2
 
-  def findOptAndFind(mayBeId: Option[Int], repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
+  def findOptAndFind(
+      mayBeId: Option[Int],
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
     repo1.findByIdOpt(mayBeId).flatMap {
       case Some(v) => repo2.findById(v).map(Some(_))
       case _       => ZIO.none
     }
 
-  def findOptAndFindFor(mayBeId: Option[Int], repo1: Repo1, repo2: Repo1): Task[Option[Int]] =
+  def findOptAndFindFor(
+      mayBeId: Option[Int],
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Option[Int]] =
     for {
       id1 <- repo1.findByIdOpt(mayBeId)
       id2 <- id1 match {
@@ -68,7 +105,11 @@ class App {
   def findIds2(ids: Set[Int], repo1: Repo1, repo2: Repo1): Task[Set[Int]] =
     ZIO.foreachPar(ids)(id => repo1.findById(id).flatMap(repo2.findById))
 
-  def findIds3(ids: Set[Int], repo1: Repo1, repo2: Repo1): Task[Set[Option[Int]]] =
+  def findIds3(
+      ids: Set[Int],
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Set[Option[Int]]] =
     ZIO.foreachPar(ids)(id => repo1.findOptById(id))
 
   def findIds4(ids: Set[Int], repo1: Repo1, repo2: Repo1): Task[Set[Int]] =
@@ -77,16 +118,30 @@ class App {
   def findIds5(ids: Set[Int], repo1: Repo1, repo2: Repo1): Task[Set[Int]] =
     repo1.findByIds(ids).flatMap(repo2.findByIds(_))
 
-  def findIds6(ids: Set[Int], repo1: Repo1, repo2: Repo1, repo3: Repo1): Task[Set[Int]] =
+  def findIds6(
+      ids: Set[Int],
+      repo1: Repo1,
+      repo2: Repo1,
+      repo3: Repo1
+  ): Task[Set[Int]] =
     for {
       repo1Ids <- repo1.findByIds(ids)
-      repo2And3Ids <- repo2.findByIds(repo1Ids).zipPar(repo3.findByIds(repo1Ids))
+      repo2And3Ids <- repo2
+        .findByIds(repo1Ids)
+        .zipPar(repo3.findByIds(repo1Ids))
     } yield repo2And3Ids._1 ++ repo2And3Ids._2
 
-  def findIds7(ids: Set[Int], repo1: Repo1, repo2: Repo1, repo3: Repo1): Task[Set[Int]] =
+  def findIds7(
+      ids: Set[Int],
+      repo1: Repo1,
+      repo2: Repo1,
+      repo3: Repo1
+  ): Task[Set[Int]] =
     repo1
       .findByIds(ids)
-      .flatMap(repo1Ids => repo2.findByIds(repo1Ids).zipPar(repo3.findByIds(repo1Ids)))
+      .flatMap(repo1Ids =>
+        repo2.findByIds(repo1Ids).zipPar(repo3.findByIds(repo1Ids))
+      )
       .map(v => v._1 ++ v._2)
 
   def zip(id: Int, repo1: Repo1, repo2: Repo1): Task[(Int, Int)] = for {
@@ -101,7 +156,11 @@ class App {
     id1or2 <- repo1.findById(id).race(repo2.findById(id))
   } yield id1or2
 
-  def raceEither(id: Int, repo1: Repo1, repo2: Repo1): Task[Either[Int, String]] = for {
+  def raceEither(
+      id: Int,
+      repo1: Repo1,
+      repo2: Repo1
+  ): Task[Either[Int, String]] = for {
     id1or2 <- repo1.findById(id).raceEither(repo2.findAsStrById(id))
   } yield id1or2
 
