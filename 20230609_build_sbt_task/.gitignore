@@ -1,0 +1,32 @@
+*.class
+*.jar
+*.png.bak
+*.asta.bak
+*~
+.DS_Store
+*.log
+
+### honkit ###
+/honkit
+
+### npm ###
+node_modules
+npm-debug.log
+
+### sbt ###
+target/
+lib_managed/
+src_managed/
+project/boot/
+.history
+.cache
+.bsp
+
+### IntelliJ ###
+*.iml
+.idea/
+
+
+.bloop/
+.metals/
+metals.sbt
