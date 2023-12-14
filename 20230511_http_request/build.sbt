@@ -1,3 +1,5 @@
+import SttpOpenApiCodegenPlugin._
+
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.10"
@@ -5,6 +7,7 @@ ThisBuild / scalaVersion := "2.13.10"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val root = (project in file("."))
+  .enablePlugins(SttpOpenApiCodegenPlugin)
   .settings(
     name := "http_request"
   )
