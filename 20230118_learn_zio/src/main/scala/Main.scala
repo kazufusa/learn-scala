@@ -172,6 +172,13 @@ class App {
 
   def destructuringAssignment(values: Set[(Int, Int, Int)]): Set[Int] =
     values.collect { case (a, b, c) => a + b + c }
+
+  def handleError(value: Task[Option[Int]]): Task[Int] = {
+    val a = ZIO
+      .attempt(Option("something"))
+      .some
+    value.map(_.fold(throw new Exception("no value"))(identity))
+  }
 }
 
 object MainApp extends ZIOAppDefault {

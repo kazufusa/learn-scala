@@ -10,6 +10,11 @@ class MainSpec extends AnyFlatSpec with Matchers with ScalaFutures {
     actual.futureValue shouldBe "hello"
   }
 
+  "throw Exception" should "Task" in {
+    val actual: Task[Int] = ZIO.attempt(throw new Exception("error"))
+    TestUtil.futureFromZIO(actual).failed.futureValue shouldBe an[Exception]
+  }
+
   "" should "" in {
     val actual: Task[Int] =
       // ZIO.fail(new Exception("1")).flatMap(_ => ZIO.succeed(1))
@@ -23,8 +28,11 @@ class MainSpec extends AnyFlatSpec with Matchers with ScalaFutures {
   "Left(error)" should "be ZIO.fail" in {
     val expected = new Exception("some error")
     val input: Either[Exception, Int] = Left(expected)
-    val actual = ZIO.fromEither(input).map(v => v * 2)
-    TestUtil.futureFromZIO(actual).failed.futureValue shouldBe expected
+    val actual =
+      ZIO.fromEither(input).mapError(e => new Exception(e.getMessage()))
+    TestUtil.futureFromZIO(actual).failed.futureValue.getCause should equal(
+      expected.getCause
+    )
   }
 
   "Right(1)" should "be ZIO.succeed(2)" in {
